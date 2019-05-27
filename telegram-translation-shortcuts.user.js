@@ -5,8 +5,8 @@
 // @include      https://translations.telegram.org/*
 // @version      0.1.0
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/jurf/telegram-translation-shortcuts/master/telegram-translation-shortcuts.user.js
-// @updateURL    https://raw.githubusercontent.com/jurf/telegram-translation-shortcuts/master/telegram-translation-shortcuts.user.js
+// @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
+// @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // ==/UserScript==
 
 // Quick apply

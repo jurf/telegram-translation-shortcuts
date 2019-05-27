@@ -7,6 +7,5 @@ If you run out of clicking fingers, you might want to give this userscript a try
 ## Installation
 
 1. Install [Violentmonkey](https://violentmonkey.github.io/get-it/), or similar
-2. Open the [script](https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js)
-3. Confirm the installation
-4. Enjoy! :slightly_smiling_face:
+2. [Install](https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js) the userscript
+3. Enjoy! :slightly_smiling_face:

@@ -2,7 +2,7 @@
 
 Adds useful keyboard shortcuts to the Telegram Translation Platform.
 
-If you run out of clicking fingers, you might want to give this userscript a try. It’s currently a very early work-in-progress, aimed mainly at reviewers, but you might still find it handy. Contributions and ideas welcome!
+If you run out of clicking fingers, you might want to consider giving this userscript a try. It’s currently a very early work-in-progress aimed mainly at reviewers, but you might still find it handy. Contributions and ideas welcome!
 
 ## Installation
 

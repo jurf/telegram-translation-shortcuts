@@ -4,10 +4,15 @@ Adds useful keyboard shortcuts to the Telegram Translation Platform.
 
 If you run out of clicking fingers, you might want to consider giving this userscript a try. It’s currently a very early work-in-progress aimed mainly at reviewers, but you might still find it handy. Contributions and ideas welcome!
 
-## Features
+## Supported shortcuts
 
-* Quick and smart apply
-* Scroll through (binded) translations
+| Shortcut                              | Command
+| ------------------------------------- | ---------------------------------------------------
+| `Ctrl+Enter` (or `y`)                 | Apply the most popular translation & move to next
+| `1`–`5`                               | Apply the n-th translation & move to next
+| `Tab` / `Shift+Tab` (or `h` / `l`)    | Cycle binded translations
+| `PageUp` / `PageDown` (or `k` / `j`)  | Move up/down
+| `/`                                   | Search
 
 …and more to come.
 

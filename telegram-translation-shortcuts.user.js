@@ -87,6 +87,13 @@ function addTranslation() {
 }
 
 /**
+ * Clicks the edit icon
+ */
+function editTranslation() {
+  document.getElementsByClassName('ibtn key-suggestion-edit').item(0).click();
+}
+
+/**
  * Applies the most popular translation, switches to next item
  *
  * @param {number} index - most popular if negative, specific if positive
@@ -203,6 +210,16 @@ function handleShortcut(e) {
     case 'a':
       if (e.ctrlKey)
         addTranslation();
+      break;
+
+    // Edit translation
+    case 'c':
+      if (!e.ctrlKey)
+        editTranslation();
+      break;
+    case 'e':
+      if (e.ctrlKey)
+        editTranslation();
       break;
 
     // Confirm top translation

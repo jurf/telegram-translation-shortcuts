@@ -13,6 +13,7 @@ If you run out of clicking fingers, you might want to consider giving this users
 | `Tab` / `Shift+Tab` (or `h` / `l`)    | Cycle binded translations
 | `PageUp` / `PageDown` (or `k` / `j`)  | Move up/down
 | `Ctrl+A` (or `i`)                     | Enter a new translation
+| `Ctrl+E` (or `c`)                     | Edit translation
 | `/`                                   | Search
 
 …and more to come.

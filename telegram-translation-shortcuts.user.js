@@ -3,7 +3,7 @@
 // @namespace    https://github.com/jurf/telegram-translation-shortcuts
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
 // @include      https://translations.telegram.org/*
-// @version      0.2.0
+// @version      0.2.1
 // @grant        none
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
@@ -82,7 +82,15 @@ function quickApply() {
   }
 
   // Click 'Apply'
-  currentRow.getElementsByClassName('btn btn-sm btn-default key-status-apply-btn')[0].click();
+  buttons = currentRow.getElementsByClassName('btn btn-sm btn-default key-status-apply-btn')
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].offsetParent === null) {
+      // Apply button not visible; ignore
+      continue;
+    }
+    buttons[i].click();
+    break;
+  }
 
   if (getCurrentBinding() === null) {
     scrollItems(true);

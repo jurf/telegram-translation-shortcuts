@@ -163,12 +163,6 @@ function handleShortcut(e) {
       e.preventDefault();
       quickApply(4);
       break;
-
-    // Open search
-    case 'BracketLeft':
-      e.preventDefault();
-      openSearch();
-      break;
   }
   switch (e.key) {
     // Cycle bindings
@@ -233,6 +227,12 @@ function handleShortcut(e) {
         e.preventDefault();
         quickApply(-1);
       }
+      break;
+
+    // Open search
+    case '/':
+      e.preventDefault();
+      openSearch();
       break;
   }
 }

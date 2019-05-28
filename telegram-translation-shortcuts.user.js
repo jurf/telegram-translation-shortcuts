@@ -40,23 +40,10 @@ function getCurrentBinding() {
  */
 function handleShortcut(e) {
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-  switch (e.key) {
-    case 'Enter':
-      if (e.ctrlKey) {
-        e.preventDefault();
-        quickApply();
-      }
-      break;
+  if (e.target.classList.contains('form-control')) {
+    // Don't override in input forms
+    return;
   }
-}
-
-/**
- * Handles keydown shortcuts
- *
- * Useful when needing to override keys whose default actions happen on keydown.
- * @param {KeyboardEvent} e - event to handle
- */
-function handleShortcutKeydown(e) {
   switch (e.key) {
     case 'Tab':
       e.preventDefault();
@@ -69,6 +56,12 @@ function handleShortcutKeydown(e) {
     case 'PageUp':
       e.preventDefault();
       scrollItems(false);
+      break;
+    case 'Enter':
+      if (e.ctrlKey) {
+        e.preventDefault();
+        quickApply();
+      }
       break;
   }
 }
@@ -147,8 +140,7 @@ function cycleBindings(forward) {
  * Bootstraps the userscipt
  */
 function main() {
-  document.addEventListener('keyup', handleShortcut);
-  document.addEventListener('keydown', handleShortcutKeydown);
+  document.addEventListener('keydown', handleShortcut);
 }
 
 main();

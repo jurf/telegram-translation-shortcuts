@@ -57,6 +57,12 @@ function handleShortcut(e) {
       e.preventDefault();
       scrollItems(false);
       break;
+    case 'a':
+      if (e.ctrlKey) {
+        e.preventDefault();
+        addTranslation();
+      }
+      break;
     case 'Enter':
       if (e.ctrlKey) {
         e.preventDefault();
@@ -64,6 +70,13 @@ function handleShortcut(e) {
       }
       break;
   }
+}
+
+/**
+ * Clicks the 'Add Translation' button
+ */
+function addTranslation() {
+  document.getElementsByClassName('key-add-suggestion-header').item(0).click();
 }
 
 /**

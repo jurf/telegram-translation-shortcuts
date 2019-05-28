@@ -84,8 +84,10 @@ function addTranslation() {
 
 /**
  * Applies the most popular translation, switches to next item
+ *
+ * @param {number} index - most popular if negative, specific if positive
  */
-function quickApply() {
+function quickApply(index) {
   var currentRow = document.getElementsByClassName('tr-key-row-wrap open').item(0);
   if (currentRow === null) {
     return;
@@ -93,13 +95,19 @@ function quickApply() {
 
   // Click 'Apply'
   buttons = currentRow.getElementsByClassName('btn btn-sm btn-default key-status-apply-btn')
-  for (var i = 0; i < buttons.length; i++) {
-    if (buttons[i].offsetParent === null) {
-      // Apply button not visible; ignore
-      continue;
+  if (index > -1 && buttons[index].offsetParent !== null) {
+    // If we have a specific index, press that
+    buttons[index].click();
+  } else {
+    // If not, press the first usable one
+    for (var i = 0; i < buttons.length; i++) {
+      if (buttons[i].offsetParent === null) {
+        // Apply button not visible; ignore
+        continue;
+      }
+      buttons[i].click();
+      break;
     }
-    buttons[i].click();
-    break;
   }
 
   // Be smart and cycle bindings if they're available
@@ -111,6 +119,13 @@ function quickApply() {
 }
 
 /**
+ * Clicks the search icon
+ */
+function openSearch() {
+  document.getElementsByClassName('header-search-btn').item(0).click();
+}
+
+/**
  * If the event matches a shortcut, launches it
  * @param {KeyboardEvent} e - event to handle
  */
@@ -119,6 +134,35 @@ function handleShortcut(e) {
   if (e.target.classList.contains('form-control')) {
     // Don't override in input forms
     return;
+  }
+  switch (e.code) {
+    // Apply specific translation
+    case 'Digit1':
+      e.preventDefault();
+      quickApply(0);
+      break;
+    case 'Digit2':
+      e.preventDefault();
+      quickApply(1);
+      break;
+    case 'Digit3':
+      e.preventDefault();
+      quickApply(2);
+      break;
+    case 'Digit4':
+      e.preventDefault();
+      quickApply(3);
+      break;
+    case 'Digit5':
+      e.preventDefault();
+      quickApply(4);
+      break;
+
+    // Open search
+    case 'BracketLeft':
+      e.preventDefault();
+      openSearch();
+      break;
   }
   switch (e.key) {
     // Cycle bindings
@@ -175,13 +219,13 @@ function handleShortcut(e) {
     case 'y':
       if (!e.ctrlKey) {
         e.preventDefault();
-        quickApply();
+        quickApply(-1);
       }
       break;
     case 'Enter':
       if (e.ctrlKey) {
         e.preventDefault();
-        quickApply();
+        quickApply(-1);
       }
       break;
   }

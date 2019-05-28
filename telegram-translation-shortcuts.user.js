@@ -39,6 +39,7 @@ function getCurrentBinding() {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut(e) {
+  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
   switch (e.key) {
     case 'Enter':
       if (e.ctrlKey) {

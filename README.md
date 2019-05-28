@@ -6,7 +6,8 @@ If you run out of clicking fingers, you might want to consider giving this users
 
 ## Features
 
-* Quick apply
+* Quick and smart apply
+* Scroll through (binded) translations
 
 …and more to come.
 

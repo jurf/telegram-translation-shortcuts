@@ -12,6 +12,7 @@ If you run out of clicking fingers, you might want to consider giving this users
 | `1`–`5`                               | Apply the n-th translation & move to next
 | `Tab` / `Shift+Tab` (or `h` / `l`)    | Cycle binded translations
 | `PageUp` / `PageDown` (or `k` / `j`)  | Move up/down
+| `Ctrl+A` (or `i`)                     | Enter a new translation
 | `/`                                   | Search
 
 …and more to come.

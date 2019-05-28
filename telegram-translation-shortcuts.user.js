@@ -3,7 +3,7 @@
 // @namespace    https://github.com/jurf/telegram-translation-shortcuts
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
 // @include      https://translations.telegram.org/*
-// @version      0.3.0
+// @version      0.3.1
 // @grant        none
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js

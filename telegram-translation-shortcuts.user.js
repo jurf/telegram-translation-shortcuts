@@ -10,7 +10,7 @@
 // ==/UserScript==
 
 /**
- * Gets the current app name
+ * Returns the current app name
  */
 function getCurrentApp() {
   crumbs = document.getElementById('breadcrumb').getElementsByTagName('li');
@@ -35,7 +35,83 @@ function getCurrentBinding() {
 }
 
 /**
- * Handles shortcuts
+ * Cycles through bindings
+ * @param {boolean} forward - cycles forward if true, backwards if false
+ */
+function cycleBindings(forward) {
+  bindings = getBindings();
+  if (bindings.length < 1) {
+    return;
+  }
+  i = bindings.indexOf(getCurrentBinding());
+
+  if (forward) {
+    if (i < bindings.length - 1) {
+      bindings[i + 1].click();
+    } else {
+      // Jump to beginning
+      bindings[0].click();
+    }
+  } else {
+    if (0 < i) {
+      bindings[i - 1].click();
+    } else {
+      // Jump to end
+      bindings[bindings.length - 1].click();
+    }
+  }
+}
+
+/**
+ * Scrolls to lower/upper item
+ * @param {Boolean} down - scolls down if true, up if false
+ */
+function scrollItems(down) {
+  // HACK: Replace this with clicking maybe?
+  if (down) {
+    LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.DOWN }));
+  } else {
+    LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.UP }));
+  }
+}
+
+/**
+ * Clicks the 'Add Translation' button
+ */
+function addTranslation() {
+  document.getElementsByClassName('key-add-suggestion-header').item(0).click();
+}
+
+/**
+ * Applies the most popular translation, switches to next item
+ */
+function quickApply() {
+  var currentRow = document.getElementsByClassName('tr-key-row-wrap open').item(0);
+  if (currentRow === null) {
+    return;
+  }
+
+  // Click 'Apply'
+  buttons = currentRow.getElementsByClassName('btn btn-sm btn-default key-status-apply-btn')
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].offsetParent === null) {
+      // Apply button not visible; ignore
+      continue;
+    }
+    buttons[i].click();
+    break;
+  }
+
+  // Be smart and cycle bindings if they're available
+  if (getCurrentBinding() === null) {
+    scrollItems(true);
+  } else {
+    cycleBindings(true);
+  }
+}
+
+/**
+ * If the event matches a shortcut, launches it
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut(e) {
@@ -73,87 +149,10 @@ function handleShortcut(e) {
 }
 
 /**
- * Clicks the 'Add Translation' button
- */
-function addTranslation() {
-  document.getElementsByClassName('key-add-suggestion-header').item(0).click();
-}
-
-/**
- * Applies the most popular translation, switches to next item
- */
-function quickApply() {
-  var currentRow = document.getElementsByClassName('tr-key-row-wrap open').item(0);
-  if (currentRow === null) {
-    return;
-  }
-
-  // Click 'Apply'
-  buttons = currentRow.getElementsByClassName('btn btn-sm btn-default key-status-apply-btn')
-  for (var i = 0; i < buttons.length; i++) {
-    if (buttons[i].offsetParent === null) {
-      // Apply button not visible; ignore
-      continue;
-    }
-    buttons[i].click();
-    break;
-  }
-
-  if (getCurrentBinding() === null) {
-    scrollItems(true);
-  } else {
-    cycleBindings(true);
-  }
-}
-
-/**
- * Scrolls to lower/upper item
- * @param {Boolean} down - scolls down if true, up if false
- */
-function scrollItems(down) {
-  // HACK: Replace this with clicking maybe?
-  if (down) {
-    LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.DOWN }));
-  } else {
-    LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.UP }));
-  }
-}
-
-/**
- * Cycles through bindings
- * @param {boolean} forward - cycles forward if true, backwards if false
- */
-function cycleBindings(forward) {
-  bindings = getBindings();
-  if (bindings.length < 1) {
-    return;
-  }
-  i = bindings.indexOf(getCurrentBinding());
-
-  if (forward) {
-
-    if (i < bindings.length - 1) {
-      bindings[i + 1].click();
-    } else {
-      bindings[0].click();
-    }
-
-  } else {
-
-    if (0 < i) {
-      bindings[i - 1].click();
-    } else {
-      bindings[bindings.length - 1].click();
-    }
-
-  }
-}
-
-/**
  * Bootstraps the userscipt
  */
-function main() {
+function init() {
   document.addEventListener('keydown', handleShortcut);
 }
 
-main();
+init();

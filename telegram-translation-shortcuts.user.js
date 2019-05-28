@@ -121,22 +121,61 @@ function handleShortcut(e) {
     return;
   }
   switch (e.key) {
+    // Cycle bindings
+    case 'l':
+      if (!e.ctrlKey) {
+        e.preventDefault();
+        cycleBindings(true);
+      }
+      break;
+    case 'h':
+      if (!e.ctrlKey) {
+        e.preventDefault();
+        cycleBindings(false);
+      }
+      break;
     case 'Tab':
       e.preventDefault();
       cycleBindings(!e.shiftKey);
       break;
+
+    // Scroll items
+    case 'j':
+      if (e.ctrlKey) {
+        break;
+      }
     case 'PageDown':
       e.preventDefault();
       scrollItems(true);
       break;
+    case 'k':
+      if (e.ctrlKey) {
+        break;
+      }
     case 'PageUp':
       e.preventDefault();
       scrollItems(false);
+      break;
+
+    // Add new translation
+    case 'i':
+      if (!e.ctrlKey) {
+        e.preventDefault();
+        addTranslation();
+      }
       break;
     case 'a':
       if (e.ctrlKey) {
         e.preventDefault();
         addTranslation();
+      }
+      break;
+
+    // Confirm top translation
+    case 'y':
+      if (!e.ctrlKey) {
+        e.preventDefault();
+        quickApply();
       }
       break;
     case 'Enter':

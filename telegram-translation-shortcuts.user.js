@@ -238,7 +238,7 @@ function handleShortcut(e) {
 }
 
 /**
- * Bootstraps the userscipt
+ * Bootstraps the userscript
  */
 function init() {
   document.addEventListener('keydown', handleShortcut);

@@ -136,11 +136,12 @@ function openSearch() {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut(e) {
-  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
   if (e.target.classList.contains('form-control')) {
     // Don't override in input forms
     return;
   }
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values
   switch (e.code) {
     // Apply specific translation
     case 'Digit1':
@@ -164,6 +165,8 @@ function handleShortcut(e) {
       quickApply(4);
       break;
   }
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
   switch (e.key) {
     // Cycle bindings
     case 'l':

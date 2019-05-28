@@ -141,103 +141,93 @@ function handleShortcut(e) {
     return;
   }
 
+  matchedCode = true;
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values
   switch (e.code) {
     // Apply specific translation
     case 'Digit1':
-      e.preventDefault();
       quickApply(0);
       break;
     case 'Digit2':
-      e.preventDefault();
       quickApply(1);
       break;
     case 'Digit3':
-      e.preventDefault();
       quickApply(2);
       break;
     case 'Digit4':
-      e.preventDefault();
       quickApply(3);
       break;
     case 'Digit5':
-      e.preventDefault();
       quickApply(4);
       break;
+    default:
+      matchedCode = false;
   }
 
+  matchedKey = true;
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
   switch (e.key) {
     // Cycle bindings
     case 'l':
-      if (!e.ctrlKey) {
-        e.preventDefault();
+      if (!e.ctrlKey)
         cycleBindings(true);
-      }
       break;
     case 'h':
-      if (!e.ctrlKey) {
-        e.preventDefault();
+      if (!e.ctrlKey)
         cycleBindings(false);
-      }
       break;
     case 'Tab':
-      e.preventDefault();
       cycleBindings(!e.shiftKey);
       break;
 
     // Scroll items
     case 'j':
-      if (e.ctrlKey) {
+      if (e.ctrlKey)
         break;
-      }
     case 'PageDown':
-      e.preventDefault();
       scrollItems(true);
       break;
+
     case 'k':
-      if (e.ctrlKey) {
+      if (e.ctrlKey)
         break;
-      }
     case 'PageUp':
-      e.preventDefault();
       scrollItems(false);
       break;
 
     // Add new translation
     case 'i':
-      if (!e.ctrlKey) {
-        e.preventDefault();
+      if (!e.ctrlKey)
         addTranslation();
-      }
       break;
     case 'a':
-      if (e.ctrlKey) {
-        e.preventDefault();
+      if (e.ctrlKey)
         addTranslation();
-      }
       break;
 
     // Confirm top translation
     case 'y':
-      if (!e.ctrlKey) {
-        e.preventDefault();
+      if (!e.ctrlKey)
         quickApply(-1);
-      }
       break;
     case 'Enter':
-      if (e.ctrlKey) {
-        e.preventDefault();
+      if (e.ctrlKey)
         quickApply(-1);
-      }
       break;
 
     // Open search
     case '/':
-      e.preventDefault();
       openSearch();
       break;
+
+    default:
+      matchedKey = false;
   }
+
+  if (matchedCode || matchedKey) {
+      e.preventDefault();
+  }
+
 }
 
 /**

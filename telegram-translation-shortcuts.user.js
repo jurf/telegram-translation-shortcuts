@@ -48,14 +48,17 @@ function cycleBindings(forward) {
   if (forward) {
     if (i < bindings.length - 1) {
       bindings[i + 1].click();
-    } else {
+    }
+    else {
       // Jump to beginning
       bindings[0].click();
     }
-  } else {
+  }
+  else {
     if (0 < i) {
       bindings[i - 1].click();
-    } else {
+    }
+    else {
       // Jump to end
       bindings[bindings.length - 1].click();
     }
@@ -70,7 +73,8 @@ function scrollItems(down) {
   // HACK: Replace this with clicking maybe?
   if (down) {
     LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.DOWN }));
-  } else {
+  }
+  else {
     LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.UP }));
   }
 }
@@ -98,7 +102,8 @@ function quickApply(index) {
   if (index > -1 && buttons[index].offsetParent !== null) {
     // If we have a specific index, press that
     buttons[index].click();
-  } else {
+  }
+  else {
     // If not, press the first usable one
     for (var i = 0; i < buttons.length; i++) {
       if (buttons[i].offsetParent === null) {
@@ -113,7 +118,8 @@ function quickApply(index) {
   // Be smart and cycle bindings if they're available
   if (getCurrentBinding() === null) {
     scrollItems(true);
-  } else {
+  }
+  else {
     cycleBindings(true);
   }
 }

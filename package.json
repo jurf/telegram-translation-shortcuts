@@ -1,0 +1,9 @@
+{
+  "name": "telegram-translation-shortcuts",
+  "devDependencies": {
+    "standard": "*"
+  },
+  "scripts": {
+    "test": "standard"
+  }
+}

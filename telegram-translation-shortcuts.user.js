@@ -81,6 +81,31 @@ function editTranslation () {
 }
 
 /**
+ * Clicks the cancel button
+ */
+function cancelTranslation () {
+  document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).focus()
+  document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).click()
+}  
+// toggle add and cancel with: ClassName('key-add-suggestion-header')
+
+/**
+ * Clicks the submit button
+ */
+function submitTranslation () {
+  document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).focus()
+  document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).click()
+}
+
+/**
+ * Clicks the delete icon
+ */
+/*
+function deleteTranslation () {
+  document.getElementsByClassName('ibtn key-suggestion-delete').item(selectedTranslation).click()
+} */
+
+/**
  * Applies the most popular translation, switches to next item
  *
  * @param {number} index - most popular if negative, specific if positive
@@ -125,6 +150,26 @@ function openSearch () {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut (e) {
+  
+  // Override these in input forms
+  
+  var matchedOverrideKey = true
+  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+  switch (e.key) {
+    // Cancel translation
+    case 'Escape':
+      if (!e.ctrlKey) cancelTranslation()
+      break
+
+    // Submit translation
+    case 'Enter':
+      if (e.ctrlKey) submitTranslation()
+      break
+
+    default:
+      matchedOverrideKey = false
+  }
+
   // Don't override in input forms
   if (e.target.classList.contains('form-control')) return
 
@@ -213,7 +258,7 @@ function handleShortcut (e) {
       matchedKey = false
   }
 
-  if (matchedCode || matchedKey) e.preventDefault()
+  if (matchedOverrideKey || matchedCode || matchedKey) e.preventDefault()
 }
 
 /**

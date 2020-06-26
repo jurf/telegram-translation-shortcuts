@@ -70,8 +70,12 @@ function scrollItems (down) {
  * Clicks the 'Add Translation' button
  */
 function addTranslation () {
-  document.getElementsByClassName('key-add-suggestion-header').item(0).click()
+  // don't click if input box is expanded
+  var input_wrapper_collapsed = (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap');
+  if (!input_wrapper_collapsed)
+    document.getElementsByClassName('key-add-suggestion-header').item(0).click()
 }
+// 'Add' and 'Cancel' toggles with: 'key-add-suggestion-header'
 
 /**
  * Clicks the edit icon
@@ -79,6 +83,37 @@ function addTranslation () {
 function editTranslation () {
   document.getElementsByClassName('ibtn key-suggestion-edit').item(0).click()
 }
+
+/**
+ * Clicks the cancel button
+ */
+function cancelTranslation () {
+  document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).click()
+}  
+// toggle add and cancel with: ClassName('key-add-suggestion-header')
+
+/**
+ * Clicks the submit button
+ */
+function submitTranslation () {
+<<<<<<< HEAD
+  document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).click()
+=======
+  // restrict when submit button can be pressed
+  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap') {
+    document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).focus()
+    document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).click()
+  }
+>>>>>>> 594d017... restrict handling of ctrl+enter and escape only inside forms
+}
+
+/**
+ * Clicks the delete icon
+ */
+/*
+function deleteTranslation () {
+  document.getElementsByClassName('ibtn key-suggestion-delete').item(selectedTranslation).click()
+} */
 
 /**
  * Applies the most popular translation, switches to next item
@@ -125,9 +160,29 @@ function openSearch () {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut (e) {
-  // Don't override in input forms
-  if (e.target.classList.contains('form-control')) return
+  
+  // Shortcuts inside input forms
+  if (e.target.classList.contains('form-control')){
+    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+    switch (e.key) {
+      // Cancel translation
+      case 'Escape':
+        if (!e.ctrlKey) cancelTranslation()
+        break
 
+      // Submit translation
+      case 'Enter':
+        if (e.ctrlKey) submitTranslation()
+        break
+
+      default:
+        // Don't handle below shortcuts in input forms
+        return
+    }
+  }
+  
+  // handle these when not inside input form
+  
   var matchedCode = true
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values
   switch (e.code) {

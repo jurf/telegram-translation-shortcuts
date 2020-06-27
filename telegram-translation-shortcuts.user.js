@@ -72,10 +72,12 @@ function scrollItems (down) {
 function addTranslation () {
   // don't click if input box is expanded
   var input_wrapper_collapsed = (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap');
-  if (!input_wrapper_collapsed)
-    document.getElementsByClassName('key-add-suggestion-header').item(0).click()
+  
+  if (!input_wrapper_collapsed)   // don't toggle 'add' and 'cancel'
+    document.getElementsByClassName('key-add-suggestion-header').item(0).click() 
+  else
+    document.getElementsByClassName('input form-control tr-form-control key-add-suggestion-field').item(0).focus() //fixme: throws undefined error
 }
-// 'Add' and 'Cancel' toggles with: 'key-add-suggestion-header'
 
 /**
  * Clicks the edit icon
@@ -88,23 +90,22 @@ function editTranslation () {
  * Clicks the cancel button
  */
 function cancelTranslation () {
-  document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).click()
-}  
-// toggle add and cancel with: ClassName('key-add-suggestion-header')
+  // restrict when cancel button can be pressed
+  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap') {
+    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).focus();
+    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).click();
+  }
+}
 
 /**
  * Clicks the submit button
  */
 function submitTranslation () {
-<<<<<<< HEAD
-  document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).click()
-=======
   // restrict when submit button can be pressed
   if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap') {
     document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).focus()
     document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).click()
   }
->>>>>>> 594d017... restrict handling of ctrl+enter and escape only inside forms
 }
 
 /**
@@ -161,7 +162,7 @@ function openSearch () {
  */
 function handleShortcut (e) {
   
-  // Shortcuts inside input forms
+  // handle shortcuts inside input forms
   if (e.target.classList.contains('form-control')){
     // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
     switch (e.key) {
@@ -176,13 +177,11 @@ function handleShortcut (e) {
         break
 
       default:
-        // Don't handle below shortcuts in input forms
-        return
+        return  // Don't handle below shortcuts in input forms
     }
   }
   
-  // handle these when not inside input form
-  
+  // handle shortcuts when not inside input forms
   var matchedCode = true
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values
   switch (e.code) {

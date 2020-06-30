@@ -67,33 +67,53 @@ function scrollItems (down) {
 }
 
 /**
- * Clicks the 'Add Translation' button
+ * A div (key-add-suggestion-wrap) contains the input-form to Add translation with Submit and Cancel buttons
+ * This function will check if that div is collapsed or not. If it is collapsed,
+ * it's className will change to 'key-add-suggestion-wrap collapsed'
+ *
+ * @function inputWrapCollapsed() -- Checks if element by class 'key-add-suggestion-wrap' is exactly the same. If not the same, then it is collapsed
+ * @returns True if collapsed
+ * @returns False if NOT collapsed
  */
-function addTranslation () {
-  // don't click if input box is expanded
-  var input_wrapper_collapsed = (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap');
-  
-  if (!input_wrapper_collapsed)   // don't toggle 'add' and 'cancel'
-    document.getElementsByClassName('key-add-suggestion-header').item(0).click() 
-  else
-    document.getElementsByClassName('input form-control tr-form-control key-add-suggestion-field').item(0).focus() //fixme: throws undefined error
+function inputWrapCollapsed () {
+  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className === 'key-add-suggestion-wrap') { // checking if it is NOT collapsed
+    return false
+  } else return true
 }
 
 /**
- * Clicks the edit icon
+ * Clicks the 'Add Translation' button
+ */
+function addTranslation () {
+  if (!inputWrapCollapsed()) { // Don't toggle 'add' and 'cancel'
+    document.getElementsByClassName('key-add-suggestion-header').item(0).click()
+  } else { // Give focus back to input box (don't lose what was typed)
+    document.getElementsByClassName('input form-control tr-form-control key-add-suggestion-field').item(0).focus()
+  }
+}
+
+/**
+ * Clicks the edit icon.
+ * Useful when a suggestion exists but no translation is applied.
  */
 function editTranslation () {
-  document.getElementsByClassName('ibtn key-suggestion-edit').item(0).click()
+  // Don't click if already typing something
+  if (!inputWrapCollapsed()) {
+    document.getElementsByClassName('ibtn key-suggestion-edit').item(0).click()
+  } else { // Give focus back to input box (don't lose what was typed)
+    document.getElementsByClassName('input form-control tr-form-control key-add-suggestion-field').item(0).focus()
+  }
 }
 
 /**
  * Clicks the cancel button
  */
 function cancelTranslation () {
-  // restrict when cancel button can be pressed
-  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap') {
-    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).focus();
-    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).click();
+  // Prevent possible glitch: Don't cancel if wrapper is collapsed, but focus is in a 'form-control' element
+  if (!inputWrapCollapsed) {
+    // Don't allow input-forms to keep the focus after cancel or else shortcuts won't work
+    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).focus()
+    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).click()
   }
 }
 
@@ -101,19 +121,21 @@ function cancelTranslation () {
  * Clicks the submit button
  */
 function submitTranslation () {
-  // restrict when submit button can be pressed
-  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className == 'key-add-suggestion-wrap') {
+  // Prevent possible glitch: Don't submit if wrapper is collapsed, but focus is in a 'form-control' element
+  if (!inputWrapCollapsed()) {
     document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).focus()
     document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).click()
   }
 }
 
 /**
- * Clicks the delete icon
- */
-/*
-function deleteTranslation () {
-  document.getElementsByClassName('ibtn key-suggestion-delete').item(selectedTranslation).click()
+ * Clicks the delete icon of selected suggestion (not yet used)
+ * @param {number} selected - Suggestion item which is in focus/selected
+ *
+function deleteSuggestion (selected) {
+  if (selected != null) {
+    document.getElementsByClassName('ibtn key-suggestion-delete').item(selected).click()
+  }
 } */
 
 /**
@@ -161,14 +183,15 @@ function openSearch () {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut (e) {
-  
-  // handle shortcuts inside input forms
-  if (e.target.classList.contains('form-control')){
+  // Handle shortcuts inside input forms
+  if (e.target.classList.contains('form-control')) {
     // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
     switch (e.key) {
       // Cancel translation
-      case 'Escape':
-        if (!e.ctrlKey) cancelTranslation()
+      case 'Escape' | 'Esc':
+        if (!e.ctrlKey) {
+          cancelTranslation() // FIXME: Doesn't work in search results
+        }
         break
 
       // Submit translation
@@ -177,11 +200,12 @@ function handleShortcut (e) {
         break
 
       default:
-        return  // Don't handle below shortcuts in input forms
+        // don't use e.preventDefault() or else TAB to next input-form won't work
+        return // Don't try to handle below shortcuts inside input forms
     }
   }
-  
-  // handle shortcuts when not inside input forms
+
+  // Handle shortcuts outside input forms
   var matchedCode = true
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values
   switch (e.code) {

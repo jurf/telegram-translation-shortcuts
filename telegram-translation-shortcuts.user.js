@@ -2,6 +2,7 @@
 // @name         Telegram Translation Platform Shortcuts
 // @namespace    https://github.com/jurf/telegram-translation-shortcuts
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
+// @Author       Juraj Fiala
 // @include      https://translations.telegram.org/*
 // @version      0.3.2
 // @grant        none
@@ -190,6 +191,7 @@ function handleShortcut (e) {
       // Cancel translation
       case 'Escape' | 'Esc':
         if (!e.ctrlKey) {
+          e.stopImmediatePropagation()
           cancelTranslation() // FIXME: Doesn't work in search results
         }
         break
@@ -200,7 +202,6 @@ function handleShortcut (e) {
         break
 
       default:
-        // don't use e.preventDefault() or else TAB to next input-form won't work
         return // Don't try to handle below shortcuts inside input forms
     }
   }
@@ -234,10 +235,10 @@ function handleShortcut (e) {
   switch (e.key) {
     // Cycle bindings
     case 'l':
-      if (!e.ctrlKey) cycleBindings(true)
+      if (!e.ctrlKey) cycleBindings(true); else matchedKey = false
       break
     case 'h':
-      if (!e.ctrlKey) cycleBindings(false)
+      if (!e.ctrlKey) cycleBindings(false); else matchedKey = false
       break
     case 'Tab':
       cycleBindings(!e.shiftKey)
@@ -252,7 +253,7 @@ function handleShortcut (e) {
       break
 
     case 'k':
-      if (!e.ctrlKey) scrollItems(false)
+      if (!e.ctrlKey) scrollItems(false); else matchedKey = false
       break
     case 'PageUp':
       scrollItems(false)
@@ -260,15 +261,15 @@ function handleShortcut (e) {
 
     // Add new translation
     case 'i':
-      if (!e.ctrlKey) addTranslation()
+      if (!e.ctrlKey) addTranslation(); else matchedKey = false
       break
     case 'a':
-      if (e.ctrlKey) addTranslation()
+      if (e.ctrlKey) addTranslation(); else matchedKey = false
       break
 
     // Edit translation
     case 'c':
-      if (!e.ctrlKey) editTranslation()
+      if (!e.ctrlKey) editTranslation(); else matchedKey = false // allow ctrl+c to copy
       break
     case 'e':
       if (e.ctrlKey) editTranslation()
@@ -276,10 +277,10 @@ function handleShortcut (e) {
 
     // Confirm top translation
     case 'y':
-      if (!e.ctrlKey) quickApply(-1)
+      if (!e.ctrlKey) quickApply(-1); else matchedKey = false
       break
     case 'Enter':
-      if (e.ctrlKey) quickApply(-1)
+      if (e.ctrlKey) quickApply(-1); else matchedKey = false
       break
 
     // Open search

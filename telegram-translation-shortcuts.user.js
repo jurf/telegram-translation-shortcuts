@@ -2,9 +2,9 @@
 // @name         Telegram Translation Platform Shortcuts
 // @namespace    https://github.com/jurf/telegram-translation-shortcuts
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
-// @Author       Juraj Fiala
+// @author       Juraj Fiala
 // @include      https://translations.telegram.org/*
-// @version      0.3.2
+// @version      0.4.0
 // @grant        none
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
@@ -37,7 +37,7 @@ function getCurrentBinding () {
 }
 
 /**
- * Cycles through bindings
+ * Cycles through Linked Phrases (bindings)
  * @param {boolean} forward - cycles forward if true, backwards if false
  */
 function cycleBindings (forward) {
@@ -68,28 +68,55 @@ function scrollItems (down) {
 }
 
 /**
- * A div (key-add-suggestion-wrap) contains the input-form to Add translation with Submit and Cancel buttons
- * This function will check if that div is collapsed or not. If it is collapsed,
- * it's className will change to 'key-add-suggestion-wrap collapsed'
- *
- * @function inputWrapCollapsed() -- Checks if element by class 'key-add-suggestion-wrap' is exactly the same. If not the same, then it is collapsed
- * @returns True if collapsed
- * @returns False if NOT collapsed
+ * Returns elements with class 'form-cancel-btn'
  */
-function inputWrapCollapsed () {
-  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className === 'key-add-suggestion-wrap') { // checking if it is NOT collapsed
-    return false
-  } else return true
+function getCancelBtns () {
+  return document.getElementsByClassName('form-cancel-btn')
+}
+
+/**
+ * Returns elements with class 'form-submit-btn'
+ */
+function getSubmitBtns () {
+  return document.getElementsByClassName('form-submit-btn')
+}
+
+/**
+ * @returns {number} 0 if translator, else item-number of the last 'form-submit-btn'
+ * (works on pages with "Add Translation" button)
+ */
+function isTranslator () {
+  return ((getSubmitBtns().item(0).innerHTML.toString().match('.*Apply') !== null) ? 0 : getSubmitBtns().length - 1)
+  // 'Add Translation' form buttons come first if you're translator; else last btn is of Add Translation
+}
+
+/**
+ * Returns whether ActiveElement is 'key-add-suggestion-field'
+ */
+function inSuggestionField () {
+  return document.activeElement.classList.contains('key-add-suggestion-field')
+}
+
+/**
+ * The wrapper ('key-add-suggestion-wrap') contains elements needed to submit a new translation.
+ * If the wrapper is closed, it's class-name changes to 'key-add-suggestion-wrap collapsed'
+ *
+ * @returns True if open; Focus to the input-form
+ * @returns False if collapsed/closed
+ */
+function isInputTranslationOpen () {
+  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className === 'key-add-suggestion-wrap') {
+    document.getElementsByClassName('tr-form-control').item(0).focus(); return true
+  } else return false
 }
 
 /**
  * Clicks the 'Add Translation' button
  */
 function addTranslation () {
-  if (!inputWrapCollapsed()) { // Don't toggle 'add' and 'cancel'
+  // Prevent toggle behaviour when clicking: focus to input if already open
+  if (!isInputTranslationOpen()) {
     document.getElementsByClassName('key-add-suggestion-header').item(0).click()
-  } else { // Give focus back to input box (don't lose what was typed)
-    document.getElementsByClassName('input form-control tr-form-control key-add-suggestion-field').item(0).focus()
   }
 }
 
@@ -98,11 +125,9 @@ function addTranslation () {
  * Useful when a suggestion exists but no translation is applied.
  */
 function editTranslation () {
-  // Don't click if already typing something
-  if (!inputWrapCollapsed()) {
+  // Don't edit if wrap was open: focus to its input
+  if (!isInputTranslationOpen()) {
     document.getElementsByClassName('ibtn key-suggestion-edit').item(0).click()
-  } else { // Give focus back to input box (don't lose what was typed)
-    document.getElementsByClassName('input form-control tr-form-control key-add-suggestion-field').item(0).focus()
   }
 }
 
@@ -110,11 +135,10 @@ function editTranslation () {
  * Clicks the cancel button
  */
 function cancelTranslation () {
-  // Prevent possible glitch: Don't cancel if wrapper is collapsed, but focus is in a 'form-control' element
-  if (!inputWrapCollapsed) {
-    // Don't allow input-forms to keep the focus after cancel or else shortcuts won't work
-    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).focus()
-    document.getElementsByClassName('btn btn-default form-cancel-btn').item(0).click()
+  if (inSuggestionField()) {
+    const ZeroOrLast = isTranslator() // 0 if translator
+    getCancelBtns().item(ZeroOrLast).click()
+    getCancelBtns().item(ZeroOrLast).focus() // Don't let input keep focus & prevent other shortcuts
   }
 }
 
@@ -122,10 +146,10 @@ function cancelTranslation () {
  * Clicks the submit button
  */
 function submitTranslation () {
-  // Prevent possible glitch: Don't submit if wrapper is collapsed, but focus is in a 'form-control' element
-  if (!inputWrapCollapsed()) {
-    document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).focus()
-    document.getElementsByClassName('btn btn-primary form-submit-btn').item(0).click()
+  if (inSuggestionField()) {
+    const ZeroOrLast = isTranslator()
+    getSubmitBtns().item(ZeroOrLast).click()
+    getCancelBtns().item(ZeroOrLast).focus() // Focus to cancel button to prevent re-submit on 'Enter' keypress
   }
 }
 
@@ -164,7 +188,7 @@ function quickApply (index) {
     }
   }
 
-  // Be smart and cycle bindings if they're available
+  // Be smart and cycle linked phrases if they're available
   if (getCurrentBinding() == null) {
     scrollItems(true)
   } else {
@@ -184,29 +208,31 @@ function openSearch () {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut (e) {
-  // Handle shortcuts inside input forms
+  // INSIDE FORM INPUTS
   if (e.target.classList.contains('form-control')) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-    switch (e.key) {
-      // Cancel translation
-      case 'Escape' | 'Esc':
-        if (!e.ctrlKey) {
-          e.stopImmediatePropagation()
-          cancelTranslation() // FIXME: Doesn't work in search results
-        }
-        break
+    // Only within translation inputs
+    if (document.activeElement.classList.contains('tr-form-control')) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+      switch (e.key) {
+        // Cancel
+        case 'Escape': // Using 'Escape | Esc' will make it useless
+          if (!e.ctrlKey) cancelTranslation(); else return
+          // FIXME: Doesn't work in search results
+          break
 
-      // Submit translation
-      case 'Enter':
-        if (e.ctrlKey) submitTranslation()
-        break
+        // Submit or Send
+        case 'Enter':
+          if (e.ctrlKey) submitTranslation(); else return
+          break
 
-      default:
-        return // Don't try to handle below shortcuts inside input forms
+        default:
+          return
+      }
     }
+    return // Don't handle any other shortcuts
   }
 
-  // Handle shortcuts outside input forms
+  // OUTSIDE INPUT FORMS
   var matchedCode = true
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values
   switch (e.code) {
@@ -233,7 +259,7 @@ function handleShortcut (e) {
   var matchedKey = true
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
   switch (e.key) {
-    // Cycle bindings
+    // Cycle linked phrases
     case 'l':
       if (!e.ctrlKey) cycleBindings(true); else matchedKey = false
       break

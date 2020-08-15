@@ -2,8 +2,9 @@
 // @name         Telegram Translation Platform Shortcuts
 // @namespace    https://github.com/jurf/telegram-translation-shortcuts
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
+// @author       Juraj Fiala
 // @include      https://translations.telegram.org/*
-// @version      0.3.2
+// @version      0.4.0
 // @grant        none
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
@@ -36,7 +37,7 @@ function getCurrentBinding () {
 }
 
 /**
- * Cycles through bindings
+ * Cycles through Linked Phrases (bindings)
  * @param {boolean} forward - cycles forward if true, backwards if false
  */
 function cycleBindings (forward) {
@@ -67,18 +68,100 @@ function scrollItems (down) {
 }
 
 /**
- * Clicks the 'Add Translation' button
+ * Returns elements with class 'form-cancel-btn'
  */
-function addTranslation () {
-  document.getElementsByClassName('key-add-suggestion-header').item(0).click()
+function getCancelBtns () {
+  return document.getElementsByClassName('form-cancel-btn')
 }
 
 /**
- * Clicks the edit icon
+ * Returns elements with class 'form-submit-btn'
+ */
+function getSubmitBtns () {
+  return document.getElementsByClassName('form-submit-btn')
+}
+
+/**
+ * @returns {number} 0 if translator, else item-number of the last 'form-submit-btn'
+ * (works on pages with "Add Translation" button)
+ */
+function isTranslator () {
+  return ((getSubmitBtns().item(0).innerHTML.toString().match('.*Apply') !== null) ? 0 : getSubmitBtns().length - 1)
+  // 'Add Translation' form buttons come first if you're translator; else last btn is of Add Translation
+}
+
+/**
+ * Returns whether ActiveElement is 'key-add-suggestion-field'
+ */
+function inSuggestionField () {
+  return document.activeElement.classList.contains('key-add-suggestion-field')
+}
+
+/**
+ * The wrapper ('key-add-suggestion-wrap') contains elements needed to submit a new translation.
+ * If the wrapper is closed, it's class-name changes to 'key-add-suggestion-wrap collapsed'
+ *
+ * @returns True if open; Focus to the input-form
+ * @returns False if collapsed/closed
+ */
+function isInputTranslationOpen () {
+  if (document.getElementsByClassName('key-add-suggestion-wrap')[0].className === 'key-add-suggestion-wrap') {
+    document.getElementsByClassName('tr-form-control').item(0).focus(); return true
+  } else return false
+}
+
+/**
+ * Clicks the 'Add Translation' button
+ */
+function addTranslation () {
+  // Prevent toggle behaviour when clicking: focus to input if already open
+  if (!isInputTranslationOpen()) {
+    document.getElementsByClassName('key-add-suggestion-header').item(0).click()
+  }
+}
+
+/**
+ * Clicks the edit icon.
+ * Useful when a suggestion exists but no translation is applied.
  */
 function editTranslation () {
-  document.getElementsByClassName('ibtn key-suggestion-edit').item(0).click()
+  // Don't edit if wrap was open: focus to its input
+  if (!isInputTranslationOpen()) {
+    document.getElementsByClassName('ibtn key-suggestion-edit').item(0).click()
+  }
 }
+
+/**
+ * Clicks the cancel button
+ */
+function cancelTranslation () {
+  if (inSuggestionField()) {
+    const ZeroOrLast = isTranslator() // 0 if translator
+    getCancelBtns().item(ZeroOrLast).click()
+    getCancelBtns().item(ZeroOrLast).focus() // Don't let input keep focus & prevent other shortcuts
+  }
+}
+
+/**
+ * Clicks the submit button
+ */
+function submitTranslation () {
+  if (inSuggestionField()) {
+    const ZeroOrLast = isTranslator()
+    getSubmitBtns().item(ZeroOrLast).click()
+    getCancelBtns().item(ZeroOrLast).focus() // Focus to cancel button to prevent re-submit on 'Enter' keypress
+  }
+}
+
+/**
+ * Clicks the delete icon of selected suggestion (not yet used)
+ * @param {number} selected - Suggestion item which is in focus/selected
+ *
+function deleteSuggestion (selected) {
+  if (selected != null) {
+    document.getElementsByClassName('ibtn key-suggestion-delete').item(selected).click()
+  }
+} */
 
 /**
  * Applies the most popular translation, switches to next item
@@ -105,7 +188,7 @@ function quickApply (index) {
     }
   }
 
-  // Be smart and cycle bindings if they're available
+  // Be smart and cycle linked phrases if they're available
   if (getCurrentBinding() == null) {
     scrollItems(true)
   } else {
@@ -125,9 +208,31 @@ function openSearch () {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut (e) {
-  // Don't override in input forms
-  if (e.target.classList.contains('form-control')) return
+  // INSIDE FORM INPUTS
+  if (e.target.classList.contains('form-control')) {
+    // Only within translation inputs
+    if (document.activeElement.classList.contains('tr-form-control')) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+      switch (e.key) {
+        // Cancel
+        case 'Escape': // Using 'Escape | Esc' will make it useless
+          if (!e.ctrlKey) cancelTranslation(); else return
+          // FIXME: Doesn't work in search results
+          break
 
+        // Submit or Send
+        case 'Enter':
+          if (e.ctrlKey) submitTranslation(); else return
+          break
+
+        default:
+          return
+      }
+    }
+    return // Don't handle any other shortcuts
+  }
+
+  // OUTSIDE INPUT FORMS
   var matchedCode = true
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code#Code_values
   switch (e.code) {
@@ -154,12 +259,12 @@ function handleShortcut (e) {
   var matchedKey = true
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
   switch (e.key) {
-    // Cycle bindings
+    // Cycle linked phrases
     case 'l':
-      if (!e.ctrlKey) cycleBindings(true)
+      if (!e.ctrlKey) cycleBindings(true); else matchedKey = false
       break
     case 'h':
-      if (!e.ctrlKey) cycleBindings(false)
+      if (!e.ctrlKey) cycleBindings(false); else matchedKey = false
       break
     case 'Tab':
       cycleBindings(!e.shiftKey)
@@ -174,7 +279,7 @@ function handleShortcut (e) {
       break
 
     case 'k':
-      if (!e.ctrlKey) scrollItems(false)
+      if (!e.ctrlKey) scrollItems(false); else matchedKey = false
       break
     case 'PageUp':
       scrollItems(false)
@@ -182,15 +287,15 @@ function handleShortcut (e) {
 
     // Add new translation
     case 'i':
-      if (!e.ctrlKey) addTranslation()
+      if (!e.ctrlKey) addTranslation(); else matchedKey = false
       break
     case 'a':
-      if (e.ctrlKey) addTranslation()
+      if (e.ctrlKey) addTranslation(); else matchedKey = false
       break
 
     // Edit translation
     case 'c':
-      if (!e.ctrlKey) editTranslation()
+      if (!e.ctrlKey) editTranslation(); else matchedKey = false // allow ctrl+c to copy
       break
     case 'e':
       if (e.ctrlKey) editTranslation()
@@ -198,10 +303,10 @@ function handleShortcut (e) {
 
     // Confirm top translation
     case 'y':
-      if (!e.ctrlKey) quickApply(-1)
+      if (!e.ctrlKey) quickApply(-1); else matchedKey = false
       break
     case 'Enter':
-      if (e.ctrlKey) quickApply(-1)
+      if (e.ctrlKey) quickApply(-1); else matchedKey = false
       break
 
     // Open search

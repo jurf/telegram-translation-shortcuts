@@ -12,14 +12,14 @@ It’s currently an early work-in-progress, but you might still find it handy. C
 | Shortcut                              | Command
 | ------------------------------------- | ---------------------------------------------------
 | `Ctrl+Enter` (or `y`)                 | Apply most popular suggestion & move to next
-| `1`–`5`                               | Apply the n-th suggestion & move to next
+| `1` – `5`                             | Apply the n-th suggestion & move to next
 | `Tab` / `Shift+Tab` (or `h` / `l`)    | Cycle linked phrases/strings
 | `PageUp` / `PageDown` (or `k` / `j`)  | Move up/down
 | `Ctrl+A` (or `i`)                     | Add a new translation
-| `Ctrl+Enter`                          | Submit translation
-| `Esc`                                 | Cancel translation
 | `Ctrl+E` (or `c`)                     | Edit the first suggestion
 | `/`                                   | Search
+| `Ctrl+Enter`                          | Submit translation (or comment)
+| `Esc`                                 | Cancel translation (or comment)
 
 …and more to come.
 

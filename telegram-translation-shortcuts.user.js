@@ -1,14 +1,14 @@
 // ==UserScript==
-// @name         Telegram Translation Platform Shortcuts
-// @namespace    https://github.com/jurf/telegram-translation-shortcuts
+// @name         Telegram Translation Shortcuts (dev)
+// @namespace    https://github.com/jurf/telegram-translation-shortcuts/dev
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
 // @author       Juraj Fiala
 // @include      https://translations.telegram.org/*
 // @version      0.4.1
 // @grant        none
 // @run-at       document-start
-// @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
-// @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
+// @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/dev/telegram-translation-shortcuts.user.js
+// @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/dev/telegram-translation-shortcuts.user.js
 // ==/UserScript==
 
 /* global LangKeys, KeyboardEvent, Keys */
@@ -170,10 +170,54 @@ function submit () {
   if (inCommentField()) {
     const formbtns = document.activeElement.nextElementSibling.children.item(0).children
     if (formbtns.item(0).classList.contains('form-submit-btn')) {
-      formbtns.item(0).focus() // Good UX
+      formbtns.item(0).focus() // Good UX?
       formbtns.item(0).click() // Send
     } // ignore?
   }
+}
+
+function hideSuggestions () {
+  const suggestions = document.getElementsByClassName('key-suggestion-wrap')
+  for (let i = 3; i < suggestions.length; i++) {
+    suggestions.item(i).add('key-suggestion-collapsed')
+    suggestions.item(i).add('hide')
+  }
+}
+
+function unhideSuggestions () {
+  const suggestions = document.getElementsByClassName('key-suggestion-wrap')
+  for (let i = 3; i < suggestions.length; i++) {
+    suggestions.item(i).add('key-suggestion-collapsed')
+    suggestions.item(i).remove('hide')
+  }
+}
+
+function hideSuggestion (itemid) {
+  // To collapse: key-suggestion-collapsed
+  const suggestion = document.getElementsByClassName('key-suggestion-wrap').item(itemid)
+  suggestion.classList.add('key-suggestion-collapsed')
+  suggestion.classList.add('hide')
+
+// // Add replacement node
+// <div class="key-suggestion-wrap key-suggestion-collapsed">
+//	<div class="key-suggestion clearfix">
+//		unhide
+//	</div>
+// </div>
+}
+
+function unhideSuggestion (itemid) {
+  // To collapse: key-suggestion-collapsed
+  const suggestion = document.getElementsByClassName('key-suggestion-wrap').item(itemid)
+  suggestion.classList.add('key-suggestion-collapsed')
+  suggestion.classList.remove('hide')
+
+// // Remove replacement node
+// <div class="key-suggestion-wrap key-suggestion-collapsed">
+//	<div class="key-suggestion clearfix">
+//		unhide
+//	</div>
+// </div>
 }
 
 /**
@@ -185,6 +229,26 @@ function deleteSuggestion (selected) {
     document.getElementsByClassName('ibtn key-suggestion-delete').item(selected).click()
   }
 } */
+
+/**
+ * Selects/Unselects all modified phrases on the import page.
+ */
+function importSelectAll () {
+  var phrases = document.getElementsByClassName('tr-plain-key-row') // phrases to be edited
+
+  if (phrases.length === document.getElementsByClassName('tr-plain-key-row selected').length) {
+    var allSelected = true
+  }
+  for (let i = 0; i < phrases.length; i++) {
+    if (allSelected) {
+      phrases.item(i).click() // unselect
+    } else {
+      if (!phrases.item(i).classList.contains('selected')) {
+        phrases.item(i).click()
+      }
+    }
+  }
+}
 
 /**
  * Applies the most popular translation, switches to next item
@@ -249,7 +313,7 @@ function handleShortcut (e) {
           if (!e.ctrlKey) {
             e.stopImmediatePropagation()
             e.preventDefault()
-            cancel() // needs @run-at  document-start to work
+            cancel() // needs "@run-at  document-start" to work
           } else return
           break
 
@@ -327,7 +391,14 @@ function handleShortcut (e) {
       if (!e.ctrlKey) addTranslation(); else matchedKey = false
       break
     case 'a':
-      if (e.ctrlKey) addTranslation(); else matchedKey = false
+      if (e.ctrlKey) {
+        // Select or Unselect all phrases on import page
+        if (window.location.href.includes('/import')) {
+          importSelectAll()
+        } else {
+          addTranslation()
+        }
+      } else matchedKey = false
       break
 
     // Edit translation
@@ -367,6 +438,7 @@ function handleShortcut (e) {
  */
 function init () {
   document.addEventListener('keydown', handleShortcut)
+  // use 'keyup' for single-key commands to prevent repeats?
 }
 
 init()

@@ -1,6 +1,6 @@
 # Telegram Translation Platform Shortcuts
 
-Adds useful keyboard shortcuts to the Telegram Translation Platform.
+Adds useful keyboard shortcuts to the Telegram Translation Platform and enhances your experience.
 
 If you run out of clicking fingers, consider giving this userscript a try.
 The shortcuts are aimed at anyone who uses the [Translations website](https://translations.telegram.org), as translator, contributor, or as a reviewer when applying untranslated strings.
@@ -18,8 +18,9 @@ It’s currently an early work-in-progress, but you might still find it handy. C
 | `Ctrl+A` (or `i`)                     | Add a new translation
 | `Ctrl+E` (or `c`)                     | Edit the first suggestion
 | `/`                                   | Search
-| `Ctrl+Enter`                          | Submit translation (or comment)
-| `Esc`                                 | Cancel translation (or comment)
+| `Ctrl+Enter`                          | Send or submit a translation/comment
+| `Esc`                                 | Cancel translation/comment
+| `Ctrl+A`                              | Select/unselect all phrases on the import page
 
 …and more to come.
 

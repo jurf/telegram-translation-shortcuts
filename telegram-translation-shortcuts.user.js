@@ -4,7 +4,7 @@
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
 // @author       Juraj Fiala
 // @include      https://translations.telegram.org/*
-// @version      0.4.1
+// @version      0.4.2
 // @grant        none
 // @run-at       document-start
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
@@ -170,7 +170,7 @@ function submit () {
   if (inCommentField()) {
     const formbtns = document.activeElement.nextElementSibling.children.item(0).children
     if (formbtns.item(0).classList.contains('form-submit-btn')) {
-      formbtns.item(0).focus() // Good UX
+      formbtns.item(0).focus() // Good UX?
       formbtns.item(0).click() // Send
     } // ignore?
   }
@@ -185,6 +185,26 @@ function deleteSuggestion (selected) {
     document.getElementsByClassName('ibtn key-suggestion-delete').item(selected).click()
   }
 } */
+
+/**
+ * Selects/Unselects all modified phrases on the import page.
+ */
+function importSelectAll () {
+  var phrases = document.getElementsByClassName('tr-plain-key-row') // phrases to be edited
+
+  if (phrases.length === document.getElementsByClassName('tr-plain-key-row selected').length) {
+    var allSelected = true
+  }
+  for (let i = 0; i < phrases.length; i++) {
+    if (allSelected) {
+      phrases.item(i).click() // unselect
+    } else {
+      if (!phrases.item(i).classList.contains('selected')) {
+        phrases.item(i).click()
+      }
+    }
+  }
+}
 
 /**
  * Applies the most popular translation, switches to next item
@@ -249,7 +269,7 @@ function handleShortcut (e) {
           if (!e.ctrlKey) {
             e.stopImmediatePropagation()
             e.preventDefault()
-            cancel() // needs @run-at  document-start to work
+            cancel() // needs "@run-at  document-start" to work
           } else return
           break
 
@@ -327,7 +347,14 @@ function handleShortcut (e) {
       if (!e.ctrlKey) addTranslation(); else matchedKey = false
       break
     case 'a':
-      if (e.ctrlKey) addTranslation(); else matchedKey = false
+      if (e.ctrlKey) {
+        // Select or Unselect all phrases on import page
+        if (window.location.href.includes('/import')) {
+          importSelectAll()
+        } else {
+          addTranslation()
+        }
+      } else matchedKey = false
       break
 
     // Edit translation

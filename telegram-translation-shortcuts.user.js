@@ -138,7 +138,8 @@ function cancelTranslation () {
   if (inSuggestionField()) {
     const ZeroOrLast = isTranslator() // 0 if translator
     getCancelBtns().item(ZeroOrLast).click()
-    getCancelBtns().item(ZeroOrLast).focus() // Don't let input keep focus & prevent other shortcuts
+    getCancelBtns().item(ZeroOrLast).focus() // Don't let input prevent other shortcuts
+    focusOut() //
   }
 }
 
@@ -149,8 +150,27 @@ function submitTranslation () {
   if (inSuggestionField()) {
     const ZeroOrLast = isTranslator()
     getSubmitBtns().item(ZeroOrLast).click()
-    getCancelBtns().item(ZeroOrLast).focus() // Focus to cancel button to prevent re-submit on 'Enter' keypress
+    getSubmitBtns().item(ZeroOrLast).focus()
+    focusOut()
   }
+}
+
+// Using MutationObserver to observe when the suggestion box is 'collapsed' (actual submit)
+// and then to change focus()
+function focusOut() {
+  const addwrap = document.querySelector(".key-add-suggestion-wrap")
+
+  const observer = new MutationObserver(function(mutationList) {
+    // console.log(mutationList)
+    // class has changed
+    document.getElementsByClassName('key-suggestion-value-box')[0].focus() // prevent re-submit on pressing 'Enter'
+    observer.disconnect()
+  });
+
+  observer.observe(addwrap, {
+    attributeFilter: ['class'],
+    attributeOldValue: false
+  });
 }
 
 /**

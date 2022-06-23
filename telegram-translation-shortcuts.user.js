@@ -4,13 +4,15 @@
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
 // @author       Juraj Fiala
 // @include      https://translations.telegram.org/*
-// @version      0.4.0
+// @version      0.4.2
 // @grant        none
+// @run-at       document-start
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // ==/UserScript==
 
 /* global LangKeys, KeyboardEvent, Keys */
+// var activeCommentItem = 0
 
 /**
  * Returns the current app name (not yet used)
@@ -98,10 +100,18 @@ function inSuggestionField () {
 }
 
 /**
+ * Returns whether activeElement is 'comment-field'
+ */
+function inCommentField () {
+  // activeCommentItem = Array.from(document.getElementsByClassName('comment-field')).indexOf(document.activeElement)
+  return document.activeElement.classList.contains('comment-field')
+}
+
+/**
  * The wrapper ('key-add-suggestion-wrap') contains elements needed to submit a new translation.
  * If the wrapper is closed, it's class-name changes to 'key-add-suggestion-wrap collapsed'
  *
- * @returns True if open; Focus to the input-form
+ * @returns True if open; and will focus to the input-form
  * @returns False if collapsed/closed
  */
 function isInputTranslationOpen () {
@@ -134,24 +144,39 @@ function editTranslation () {
 /**
  * Clicks the cancel button
  */
-function cancelTranslation () {
+function cancel () {
   if (inSuggestionField()) {
     const ZeroOrLast = isTranslator() // 0 if translator
     getCancelBtns().item(ZeroOrLast).click()
-    getCancelBtns().item(ZeroOrLast).focus() // Don't let input prevent other shortcuts
-    focusOut() //
+    getCancelBtns().item(ZeroOrLast).focus() // Don't let input keep focus & prevent other shortcuts
+    focusOut() // change focus
+  } else
+  if (inCommentField()) {
+    const formbtns = document.activeElement.nextElementSibling.children.item(0).children
+    document.activeElement.form.reset()
+    formbtns.item(1).click() // Clicks 'cancel' for animation
+    focusOut() // change focus
+    // document.getElementsByClassName('key-suggestion-value-wrap').item(activeCommentItem).click() // Collapse the comments
   }
 }
 
 /**
  * Clicks the submit button
  */
-function submitTranslation () {
+function submit () {
   if (inSuggestionField()) {
     const ZeroOrLast = isTranslator()
     getSubmitBtns().item(ZeroOrLast).click()
-    getSubmitBtns().item(ZeroOrLast).focus()
+    getCancelBtns().item(ZeroOrLast).focus() // Focus to cancel button to prevent re-submit on 'Enter' keypress
     focusOut()
+  } else
+  if (inCommentField()) {
+    const formbtns = document.activeElement.nextElementSibling.children.item(0).children
+    if (formbtns.item(0).classList.contains('form-submit-btn')) {
+      formbtns.item(0).focus() // Good UX?
+      formbtns.item(0).click() // Send
+      focusOut()
+    }
   }
 }
 
@@ -182,6 +207,26 @@ function deleteSuggestion (selected) {
     document.getElementsByClassName('ibtn key-suggestion-delete').item(selected).click()
   }
 } */
+
+/**
+ * Selects/Unselects all modified phrases on the import page.
+ */
+function importSelectAll () {
+  var phrases = document.getElementsByClassName('tr-plain-key-row') // phrases to be edited
+
+  if (phrases.length === document.getElementsByClassName('tr-plain-key-row selected').length) {
+    var allSelected = true
+  }
+  for (let i = 0; i < phrases.length; i++) {
+    if (allSelected) {
+      phrases.item(i).click() // unselect
+    } else {
+      if (!phrases.item(i).classList.contains('selected')) {
+        phrases.item(i).click()
+      }
+    }
+  }
+}
 
 /**
  * Applies the most popular translation, switches to next item
@@ -217,10 +262,15 @@ function quickApply (index) {
 }
 
 /**
- * Clicks the search icon
+ * Focus on current context search field
  */
 function openSearch () {
-  document.getElementsByClassName('header-search-btn').item(0).click()
+  var isPopupHidden = document.getElementsByClassName('popup-container').item(0).classList.contains('hide')
+  if (isPopupHidden | undefined | null) {
+    document.getElementsByClassName('header-search-btn').item(0).click()
+  } else {
+    document.getElementsByClassName('tr-popup-search-field').item(0).focus()
+  }
 }
 
 /**
@@ -228,21 +278,30 @@ function openSearch () {
  * @param {KeyboardEvent} e - event to handle
  */
 function handleShortcut (e) {
+  if (!e.isTrusted) return // Only accept events from humans
+  const eClassList = e.target.classList
   // INSIDE FORM INPUTS
-  if (e.target.classList.contains('form-control')) {
-    // Only within translation inputs
-    if (document.activeElement.classList.contains('tr-form-control')) {
+  if (eClassList.contains('form-control')) {
+    // Only within translation / comment inputs
+    if (eClassList.contains('tr-form-control') || eClassList.contains('comment-field')) {
       // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
       switch (e.key) {
         // Cancel
-        case 'Escape': // Using 'Escape | Esc' will make it useless
-          if (!e.ctrlKey) cancelTranslation(); else return
-          // FIXME: Doesn't work in search results
+        case 'Escape': // Try to Use 'Escape | Esc' inside an if()
+          if (!e.ctrlKey) {
+            e.stopImmediatePropagation()
+            e.preventDefault()
+            cancel() // needs "@run-at  document-start" to work
+          } else return
           break
 
         // Submit or Send
         case 'Enter':
-          if (e.ctrlKey) submitTranslation(); else return
+          if (e.ctrlKey) {
+            e.stopImmediatePropagation()
+            e.preventDefault()
+            submit()
+          } else return
           break
 
         default:
@@ -310,7 +369,14 @@ function handleShortcut (e) {
       if (!e.ctrlKey) addTranslation(); else matchedKey = false
       break
     case 'a':
-      if (e.ctrlKey) addTranslation(); else matchedKey = false
+      if (e.ctrlKey) {
+        // Select or Unselect all phrases on import page
+        if (window.location.href.includes('/import')) {
+          importSelectAll()
+        } else {
+          addTranslation()
+        }
+      } else matchedKey = false
       break
 
     // Edit translation
@@ -326,7 +392,11 @@ function handleShortcut (e) {
       if (!e.ctrlKey) quickApply(-1); else matchedKey = false
       break
     case 'Enter':
-      if (e.ctrlKey) quickApply(-1); else matchedKey = false
+      if (!e.ctrlKey && document.activeElement.classList.contains('form-submit-btn')) {
+        e.stopImmediatePropagation() // prevent form-resubmit
+      } else if (e.ctrlKey) {
+        quickApply(-1)
+      } else matchedKey = false
       break
 
     // Open search

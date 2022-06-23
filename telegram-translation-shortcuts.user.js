@@ -160,35 +160,14 @@ function cancel () {
   }
 }
 
-/**
- * Clicks the submit button
- */
-function submit () {
-  if (inSuggestionField()) {
-    const ZeroOrLast = isTranslator()
-    getSubmitBtns().item(ZeroOrLast).click()
-    getCancelBtns().item(ZeroOrLast).focus() // Focus to cancel button to prevent re-submit on 'Enter' keypress
-    focusOut()
-  } else
-  if (inCommentField()) {
-    const formbtns = document.activeElement.nextElementSibling.children.item(0).children
-    if (formbtns.item(0).classList.contains('form-submit-btn')) {
-      formbtns.item(0).focus() // Good UX?
-      formbtns.item(0).click() // Send
-      focusOut()
-    }
-  }
-}
-
-// Using MutationObserver to observe when the suggestion box is 'collapsed' (actual submit)
-// and then to change focus()
+// Using MutationObserver to observe when the suggestion box is 'collapsed'
+// and then change focus() to a non-form non-clickable element
 function focusOut() {
   const addwrap = document.querySelector(".key-add-suggestion-wrap")
 
   const observer = new MutationObserver(function(mutationList) {
-    // console.log(mutationList)
     // class has changed
-    document.getElementsByClassName('key-suggestion-value-box')[0].focus() // prevent re-submit on pressing 'Enter'
+    document.getElementsByClassName('key-suggestion-value-box')[0].focus() // prevent re-submit on 'Enter' by changing focused element
     observer.disconnect()
   });
 
@@ -294,21 +273,11 @@ function handleShortcut (e) {
             cancel() // needs "@run-at  document-start" to work
           } else return
           break
-
-        // Submit or Send
-        case 'Enter':
-          if (e.ctrlKey) {
-            e.stopImmediatePropagation()
-            e.preventDefault()
-            submit()
-          } else return
-          break
-
         default:
           return
       }
     }
-    return // Don't handle any other shortcuts
+    return // finish handling shortcuts in this context
   }
 
   // OUTSIDE INPUT FORMS

@@ -18,11 +18,13 @@ It’s currently an early work-in-progress, but you might still find it handy. C
 | `Ctrl+A` (or `i`)                     | Add a new translation
 | `Ctrl+E` (or `c`)                     | Edit the first suggestion
 | `/`                                   | Search
-| `Ctrl+Enter`                          | Send or submit a translation/comment
-| `Esc`                                 | Cancel translation/comment
-| `Ctrl+A`                              | Select/unselect all phrases on the import page
+| `Esc`                                 | Cancel adding translation/comment
 
 …and more to come.
+
+## Features
+- `Ctrl+A` to select All phrases on import page. Can deselect too with same shortcut.
+
 
 ## Installation
 

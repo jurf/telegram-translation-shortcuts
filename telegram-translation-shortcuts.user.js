@@ -319,14 +319,14 @@ function handleShortcut (e) {
       break
 
     // Scroll items
-    case 'j':
+    case 'k':
       if (!e.ctrlKey) scrollItems(true)
       break
     case 'PageDown':
       scrollItems(true)
       break
 
-    case 'k':
+    case 'j':
       if (!e.ctrlKey) scrollItems(false); else matchedKey = false
       break
     case 'PageUp':
@@ -337,9 +337,10 @@ function handleShortcut (e) {
     case 'i':
       if (!e.ctrlKey) addTranslation(); else matchedKey = false
       break
+    
+    // Select or Deselect all phrases on import page
     case 'a':
       if (e.ctrlKey) {
-        // Select or Unselect all phrases on import page
         if (window.location.href.includes('/import')) {
           importSelectAll()
         } else {
@@ -381,10 +382,50 @@ function handleShortcut (e) {
 }
 
 /**
+ * Observes if the page has changed and calls runAtDocumentLoadProgressComplete()
+ */
+function AttachMutationProgress () {
+  // Watch progress bar to detect loading of new page
+  const ajprogressbar = document.querySelector('#aj_progress')
+  var progressObserver = new MutationObserver(function(mutationList){
+    mutationList.forEach(function(mutation) {
+      if (mutation.oldValue === 'width: 100%; transition: width 0.3s linear 0s, box-shadow 0.2s ease 0s; position: fixed; z-index: 1000; top: 0px; height: 3px; box-shadow: rgb(57, 173, 231) 0px 2px 0px inset;'){
+        if(mutation.target.style.boxShadow === 'rgb(57, 173, 231) 0px 0px 0px inset') {
+          console.log('=== Page changed/reloaded ===')
+          runAtDocumentLoadProgressComplete()
+        } else if (mutation.target.style.boxShadow === 'rgb(57, 173, 231) 0px 0px 0px 0px inset') {
+          console.log('=== Page changed/reloaded with 4 x 0px boxShadow ===')
+          runAtDocumentLoadProgressComplete()
+        }
+      }
+    });
+  })
+  progressObserver.observe(ajprogressbar, {
+    attributeFilter: ['style'],
+    attributeOldValue: true,
+  });
+}
+
+/**
+ * Runs when page has loaded with ajax / blue page loading progress bar
+ */
+function runAtDocumentLoadProgressComplete() {
+  // run something everytime new content loads
+}
+
+/**
  * Bootstraps the userscript
  */
 function init () {
   document.addEventListener('keydown', handleShortcut)
+  
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){
+      // run when page fully loaded first time
+      AttachMutationProgress()
+      runAtDocumentLoadProgressComplete()
+    });
+  }
 }
 
 init()

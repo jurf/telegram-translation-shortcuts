@@ -14,17 +14,14 @@ It’s currently an early work-in-progress, but you might still find it handy. C
 | `Ctrl+Enter` (or `y`)                 | Apply most popular suggestion & move to next
 | `1` – `5`                             | Apply the n-th suggestion & move to next
 | `Tab` / `Shift+Tab` (or `h` / `l`)    | Cycle linked phrases/strings
-| `PageUp` / `PageDown` (or `k` / `j`)  | Move up/down
+| `PageUp` / `PageDown` (or `j` / `k`)  | Move up/down
 | `Ctrl+A` (or `i`)                     | Add a new translation
 | `Ctrl+E` (or `c`)                     | Edit the first suggestion
-| `/`                                   | Search
 | `Esc`                                 | Cancel adding translation/comment
+| `Ctrl+A`                              | Select/deselect all phrases on import page
+| `/`                                   | Search
 
 …and more to come.
-
-## Features
-- `Ctrl+A` to select All phrases on import page. Can deselect too with same shortcut.
-
 
 ## Installation
 

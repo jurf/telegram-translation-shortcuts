@@ -11,7 +11,7 @@
 // @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // ==/UserScript==
 
-/* global LangKeys, KeyboardEvent, Keys */
+/* global MutationObserver, LangKeys, KeyboardEvent, Keys */
 // var activeCommentItem = 0
 
 /**
@@ -162,19 +162,19 @@ function cancel () {
 
 // Using MutationObserver to observe when the suggestion box is 'collapsed'
 // and then change focus() to a non-form non-clickable element
-function focusOut() {
-  const addwrap = document.querySelector(".key-add-suggestion-wrap")
+function focusOut () {
+  const addwrap = document.querySelector('.key-add-suggestion-wrap')
 
-  const observer = new MutationObserver(function(mutationList) {
+  const observer = new MutationObserver(function (mutationList) {
     // class has changed
     document.getElementsByClassName('key-suggestion-value-box')[0].focus() // prevent re-submit on 'Enter' by changing focused element
     observer.disconnect()
-  });
+  })
 
   observer.observe(addwrap, {
     attributeFilter: ['class'],
     attributeOldValue: false
-  });
+  })
 }
 
 /**
@@ -192,16 +192,16 @@ function deleteSuggestion (selected) {
  */
 function importSelectAll () {
   var phrases = document.getElementsByClassName('tr-plain-key-row') // phrases to be edited
-
-  if (phrases.length === document.getElementsByClassName('tr-plain-key-row selected').length) {
-    var allSelected = true
+  var total = phrases.length > 50 ? 50 : phrases.length
+  if (total === document.getElementsByClassName('tr-plain-key-row selected').length) {
+    var selectedAll = true
   }
-  for (let i = 0; i < phrases.length; i++) {
-    if (allSelected) {
-      phrases.item(i).click() // unselect
+  for (let i = 0; i < total; i++) {
+    if (selectedAll) {
+      phrases.item(i).click() // unselect all selected phrases
     } else {
       if (!phrases.item(i).classList.contains('selected')) {
-        phrases.item(i).click()
+        phrases.item(i).click() // else select some more phrases
       }
     }
   }
@@ -337,7 +337,7 @@ function handleShortcut (e) {
     case 'i':
       if (!e.ctrlKey) addTranslation(); else matchedKey = false
       break
-    
+
     // Select or Deselect all phrases on import page
     case 'a':
       if (e.ctrlKey) {
@@ -387,10 +387,10 @@ function handleShortcut (e) {
 function AttachMutationProgress () {
   // Watch progress bar to detect loading of new page
   const ajprogressbar = document.querySelector('#aj_progress')
-  var progressObserver = new MutationObserver(function(mutationList){
-    mutationList.forEach(function(mutation) {
-      if (mutation.oldValue === 'width: 100%; transition: width 0.3s linear 0s, box-shadow 0.2s ease 0s; position: fixed; z-index: 1000; top: 0px; height: 3px; box-shadow: rgb(57, 173, 231) 0px 2px 0px inset;'){
-        if(mutation.target.style.boxShadow === 'rgb(57, 173, 231) 0px 0px 0px inset') {
+  var progressObserver = new MutationObserver(function (mutationList) {
+    mutationList.forEach(function (mutation) {
+      if (mutation.oldValue === 'width: 100%; transition: width 0.3s linear 0s, box-shadow 0.2s ease 0s; position: fixed; z-index: 1000; top: 0px; height: 3px; box-shadow: rgb(57, 173, 231) 0px 2px 0px inset;') {
+        if (mutation.target.style.boxShadow === 'rgb(57, 173, 231) 0px 0px 0px inset') {
           console.log('=== Page changed/reloaded ===')
           runAtDocumentLoadProgressComplete()
         } else if (mutation.target.style.boxShadow === 'rgb(57, 173, 231) 0px 0px 0px 0px inset') {
@@ -398,18 +398,18 @@ function AttachMutationProgress () {
           runAtDocumentLoadProgressComplete()
         }
       }
-    });
+    })
   })
   progressObserver.observe(ajprogressbar, {
     attributeFilter: ['style'],
-    attributeOldValue: true,
-  });
+    attributeOldValue: true
+  })
 }
 
 /**
  * Runs when page has loaded with ajax / blue page loading progress bar
  */
-function runAtDocumentLoadProgressComplete() {
+function runAtDocumentLoadProgressComplete () {
   // run something everytime new content loads
 }
 
@@ -418,13 +418,13 @@ function runAtDocumentLoadProgressComplete() {
  */
 function init () {
   document.addEventListener('keydown', handleShortcut)
-  
-  if(document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
       // run when page fully loaded first time
       AttachMutationProgress()
       runAtDocumentLoadProgressComplete()
-    });
+    })
   }
 }
 

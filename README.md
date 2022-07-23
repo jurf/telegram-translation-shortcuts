@@ -11,14 +11,16 @@ It’s currently an early work-in-progress, but you might still find it handy. C
 
 | Shortcut                              | Command
 | ------------------------------------- | ---------------------------------------------------
-| `Ctrl+Enter` (or `y`)                 | Apply most popular suggestion & move to next
+| `Ctrl+Enter` (or `y`)                 | Apply 1st (most popular) suggestion & move to next
+| `Ctrl+Enter` (in text field)          | Submit suggestion & move down to next one
 | `1` – `5`                             | Apply the n-th suggestion & move to next
 | `Tab` / `Shift+Tab` (or `h` / `l`)    | Cycle linked phrases/strings
 | `PageUp` / `PageDown` (or `j` / `k`)  | Move up/down
+| `Ctrl+A` (on import page)             | Select/deselect all phrases on import page
 | `Ctrl+A` (or `i`)                     | Add a new translation
 | `Ctrl+E` (or `c`)                     | Edit the first suggestion
+| `Ctrl+Shift+C`                        | Search the selected text in a new tab in all apps
 | `Esc`                                 | Cancel adding translation/comment
-| `Ctrl+A`                              | Select/deselect all phrases on import page
 | `/`                                   | Search
 
 …and more to come.

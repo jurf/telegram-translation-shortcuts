@@ -4,7 +4,7 @@
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
 // @author       Juraj Fiala
 // @include      https://translations.telegram.org/*
-// @version      0.4.2
+// @version      0.4.3
 // @grant        none
 // @run-at       document-start
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
@@ -160,13 +160,32 @@ function cancel () {
   }
 }
 
+/**
+ * Clicks the submit button
+ */
+function submitScrollDown () {
+  const addwrap = document.querySelector('.key-add-suggestion-wrap')
+  const observer = new MutationObserver( () => {
+    // addwrap's class has changed
+    if (inSuggestionField()) {
+      scrollItems(true)
+      document.getElementsByClassName('key-suggestion-value-box')[0].focus()
+    }
+    observer.disconnect()
+  })
+  observer.observe(addwrap, {
+    attributeFilter: ['class'],
+    attributeOldValue: false
+  })
+}
+
 // Using MutationObserver to observe when the suggestion box is 'collapsed'
 // and then change focus() to a non-form non-clickable element
 function focusOut () {
   const addwrap = document.querySelector('.key-add-suggestion-wrap')
 
   const observer = new MutationObserver(function (mutationList) {
-    // class has changed
+    // addwrap's class has changed
     document.getElementsByClassName('key-suggestion-value-box')[0].focus() // prevent re-submit on 'Enter' by changing focused element
     observer.disconnect()
   })
@@ -175,6 +194,29 @@ function focusOut () {
     attributeFilter: ['class'],
     attributeOldValue: false
   })
+}
+
+
+/**
+ * parses window.location.href and returns an array
+ * @returns {array} [langname, appname, stringname]
+ */
+function fromUrl () {
+  const fromurlmatches = window.location.href.match(/\.org\/([\w-]+)\/(android_x|ios|tdesktop|macos|android)?(?:.*\/)?([\w._]+$)?/)
+  const langname = fromurlmatches[1]
+  const appname = fromurlmatches[2]
+  const stringname = fromurlmatches[3]
+  return [langname, appname, stringname]
+}
+
+function searchSelection () {
+  selection = window.getSelection()
+  if (selection.isCollapsed) return
+  let text = selection.toString()
+  const host = 'https://translations.telegram.org/'
+  let langname = fromUrl()[0]
+  let searchurl = host + langname + '/search?&query=' + encodeURI(text)
+  window.open(searchurl, '_blank').focus();
 }
 
 /**
@@ -198,13 +240,17 @@ function importSelectAll () {
   }
   for (let i = 0; i < total; i++) {
     if (selectedAll) {
-      phrases.item(i).click() // unselect all selected phrases
+      phrases.item(i).click() // unselect all phrases
     } else {
       if (!phrases.item(i).classList.contains('selected')) {
-        phrases.item(i).click() // else select some more phrases
+        phrases.item(i).click() // select some more phrases
       }
     }
   }
+  // Append count of selected strings
+  // const selected = document.getElementsByClassName('tr-plain-key-row selected').length
+  // $('.change-selected-btn').html(selected + ' Edit Selected')
+  // Maybe use mutation observer to change the count of selected strings
 }
 
 /**
@@ -273,6 +319,11 @@ function handleShortcut (e) {
             cancel() // needs "@run-at  document-start" to work
           } else return
           break
+        case 'Enter':
+          if(e.ctrlKey) {
+            submitScrollDown()
+          }
+          break
         default:
           return
       }
@@ -332,13 +383,8 @@ function handleShortcut (e) {
     case 'PageUp':
       scrollItems(false)
       break
-
-    // Add new translation
-    case 'i':
-      if (!e.ctrlKey) addTranslation(); else matchedKey = false
-      break
-
-    // Select or Deselect all phrases on import page
+    
+    // Add translation OR select/deselect all phrases on import page
     case 'a':
       if (e.ctrlKey) {
         if (window.location.href.includes('/import')) {
@@ -349,9 +395,25 @@ function handleShortcut (e) {
       } else matchedKey = false
       break
 
+    // Add new translation
+    case 'i':
+      if (!e.ctrlKey) addTranslation(); else matchedKey = false
+      break
+
+    // Search selected text
+    case 'C':
+      if(e.shiftKey && e.ctrlKey) {
+        e.stopImmediatePropagation()
+        e.preventDefault()
+        searchSelection()
+      } else matchedKey = false
+      break
+
     // Edit translation
     case 'c':
-      if (!e.ctrlKey) editTranslation(); else matchedKey = false // allow ctrl+c to copy
+      if (!e.ctrlKey) {
+        editTranslation()
+      } else matchedKey = false // allow ctrl+c to copy
       break
     case 'e':
       if (e.ctrlKey) editTranslation()

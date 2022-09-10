@@ -4,14 +4,14 @@
 // @description  Adds useful keyboard shortcuts to the Telegram Translation Platform
 // @author       Juraj Fiala
 // @include      https://translations.telegram.org/*
-// @version      0.4.3
+// @version      0.4.4
 // @grant        none
 // @run-at       document-start
 // @downloadURL  https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // @updateURL    https://github.com/jurf/telegram-translation-shortcuts/raw/master/telegram-translation-shortcuts.user.js
 // ==/UserScript==
 
-/* global MutationObserver, LangKeys, KeyboardEvent, Keys */
+/* global alert, MutationObserver, Keys */
 // var activeCommentItem = 0
 
 /**
@@ -56,6 +56,41 @@ function cycleBindings (forward) {
   }
 }
 
+// https://gist.github.com/ejoubaud/7d7c57cda1c10a4fae8c
+var Podium = {}
+
+Podium.keydown = function (k) {
+  var oEvent = document.createEvent('KeyboardEvent')
+
+  // Chromium Hack
+  Object.defineProperty(oEvent, 'keyCode', {
+    get: function () {
+      return this.keyCodeVal
+    }
+  })
+  Object.defineProperty(oEvent, 'which', {
+    get: function () {
+      return this.keyCodeVal
+    }
+  })
+
+  if (oEvent.initKeyboardEvent) {
+    oEvent.initKeyboardEvent('keydown', true, true, document.defaultView, k, k, '', '', false, '')
+  } else {
+    oEvent.initKeyEvent('keydown', true, true, document.defaultView, false, false, false, false, k, 0)
+  }
+
+  oEvent.keyCodeVal = k
+
+  if (oEvent.keyCode !== k) {
+    alert('keyCode mismatch ' + oEvent.keyCode + '(' + oEvent.which + ')')
+  }
+
+  document.body.dispatchEvent(oEvent)
+}
+
+// Podium.keydown(40); // for arrow-down, arrow-up is 38
+
 /**
  * Scrolls to lower/upper item
  * @param {Boolean} down - scolls down if true, up if false
@@ -63,9 +98,12 @@ function cycleBindings (forward) {
 function scrollItems (down) {
   // HACK: Replace this with clicking maybe?
   if (down) {
-    LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.DOWN }))
+    // passing a constructed KeyboardEvent() object does not work in chromium
+    Podium.keydown(Keys.DOWN)
+    // LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.DOWN }))
   } else {
-    LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.UP }))
+    Podium.keydown(Keys.UP)
+    // LangKeys.onKeyDown(new KeyboardEvent('keydown', { which: Keys.UP }))
   }
 }
 
@@ -160,25 +198,6 @@ function cancel () {
   }
 }
 
-/**
- * Clicks the submit button
- */
-function submitScrollDown () {
-  const addwrap = document.querySelector('.key-add-suggestion-wrap')
-  const observer = new MutationObserver( () => {
-    // addwrap's class has changed
-    if (inSuggestionField()) {
-      scrollItems(true)
-      document.getElementsByClassName('key-suggestion-value-box')[0].focus()
-    }
-    observer.disconnect()
-  })
-  observer.observe(addwrap, {
-    attributeFilter: ['class'],
-    attributeOldValue: false
-  })
-}
-
 // Using MutationObserver to observe when the suggestion box is 'collapsed'
 // and then change focus() to a non-form non-clickable element
 function focusOut () {
@@ -196,6 +215,24 @@ function focusOut () {
   })
 }
 
+/**
+ * Clicks the submit button and jumps down to next phrase
+ */
+function submitScrollDown () {
+  const addwrap = document.querySelector('.key-add-suggestion-wrap')
+  const observer = new MutationObserver(() => {
+    // addwrap's class has changed
+    if (inSuggestionField()) {
+      scrollItems(true)
+      document.getElementsByClassName('key-suggestion-value-box')[0].focus()
+    }
+    observer.disconnect()
+  })
+  observer.observe(addwrap, {
+    attributeFilter: ['class'],
+    attributeOldValue: false
+  })
+}
 
 /**
  * parses window.location.href and returns an array
@@ -209,14 +246,15 @@ function fromUrl () {
   return [langname, appname, stringname]
 }
 
+// works on chromium
 function searchSelection () {
-  selection = window.getSelection()
+  const selection = window.getSelection()
   if (selection.isCollapsed) return
-  let text = selection.toString()
+  const text = selection.toString()
   const host = 'https://translations.telegram.org/'
-  let langname = fromUrl()[0]
-  let searchurl = host + langname + '/search?&query=' + encodeURI(text)
-  window.open(searchurl, '_blank').focus();
+  const langname = fromUrl()[0]
+  const searchurl = host + langname + '/search?&query=' + encodeURI(text)
+  window.open(searchurl, '_blank')
 }
 
 /**
@@ -320,7 +358,7 @@ function handleShortcut (e) {
           } else return
           break
         case 'Enter':
-          if(e.ctrlKey) {
+          if (e.ctrlKey) {
             submitScrollDown()
           }
           break
@@ -383,7 +421,7 @@ function handleShortcut (e) {
     case 'PageUp':
       scrollItems(false)
       break
-    
+
     // Add translation OR select/deselect all phrases on import page
     case 'a':
       if (e.ctrlKey) {
@@ -402,7 +440,7 @@ function handleShortcut (e) {
 
     // Search selected text
     case 'C':
-      if(e.shiftKey && e.ctrlKey) {
+      if (e.shiftKey && e.ctrlKey) {
         e.stopImmediatePropagation()
         e.preventDefault()
         searchSelection()
